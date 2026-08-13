@@ -1,0 +1,47 @@
+{
+  "name": "@witooh/omp-provider-xai",
+  "version": "0.1.0",
+  "description": "omp extension that repairs the built-in xai-oauth (SuperGrok) model catalog — adds grok-4.6 with its real context window, vision, and reasoning-effort dial",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/witooh/omp-provider-xai.git"
+  },
+  "keywords": [
+    "omp-package",
+    "omp",
+    "xai",
+    "grok",
+    "supergrok",
+    "ai",
+    "provider"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --external:@oh-my-pi/pi-ai --external:@oh-my-pi/pi-coding-agent --external:@oh-my-pi/pi-tui",
+    "check": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "bun test",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run check && npm run build"
+  },
+  "omp": {
+    "extensions": [
+      "./dist/index.js"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.2",
+    "@oh-my-pi/pi-ai": "17.2.15",
+    "@oh-my-pi/pi-coding-agent": "17.2.15",
+    "@types/bun": "^1.3.14",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.0"
+  }
+}
