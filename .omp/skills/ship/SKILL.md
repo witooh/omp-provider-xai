@@ -47,12 +47,17 @@ Required release paths when present:
 - `package-lock.json` (only if this release changed deps)
 - `src/`
 - `test/`
-- `dist/` is **not** committed — built by `prepare` / install consumers
+- `dist/index.js` — **committed on purpose**. `omp plugin install github:…`
+  runs `bun install`, which blocks the `prepare` lifecycle script ("Blocked 1
+  postinstall"), so nothing builds the bundle on the consumer side and omp's
+  extension-entry validation fails with "declared extension entry not found on
+  disk". Rebuild it in step 2 and stage it whenever it changed.
 - `README.md`
 - `tsconfig.json` / `tsconfig.test.json` / `biome.json` / `.gitattributes` / `.gitignore`
 - `.omp/skills/ship/SKILL.md`
 
-Confirm `dist/` stays gitignored (or untracked). Do not stage `node_modules/`.
+Confirm the staged `dist/index.js` is the one step 2 just built (`.gitignore`
+keeps the rest of `dist/` out). Do not stage `node_modules/`.
 
 ## 2. Gates
 
