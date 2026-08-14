@@ -1,6 +1,6 @@
 {
   "name": "@witooh/omp-provider-xai",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "omp extension that repairs the built-in xai-oauth (SuperGrok) model catalog — adds grok-4.6 with its real context window, vision, and reasoning-effort dial",
   "type": "module",
   "license": "MIT",
