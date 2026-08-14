@@ -1,6 +1,7 @@
 import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
 import { XAI_OAUTH_BASE_URL, xaiOauthModels } from "./models.js";
 import { xaiOauthConfig } from "./oauth.js";
+import { rebindStaleXaiModel } from "./session-bind.js";
 
 export { XAI_OAUTH_BASE_URL, xaiOauthModels } from "./models.js";
 
@@ -22,4 +23,8 @@ export default function (pi: ExtensionAPI) {
     models: xaiOauthModels,
     oauth: xaiOauthConfig(),
   });
+
+  // Session start binds the default model before this overlay is visible on the
+  // live session object. Rebind so grok-4.6 keeps the effort dial.
+  pi.on("session_start", (_event, ctx) => rebindStaleXaiModel(pi, ctx));
 }

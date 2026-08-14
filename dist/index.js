@@ -139,6 +139,50 @@ function xaiOauthConfig() {
   };
 }
 
+// src/session-bind.ts
+var EFFORT_SUFFIX = {
+  minimal: true,
+  low: true,
+  medium: true,
+  high: true,
+  xhigh: true,
+  max: true,
+  off: true,
+  auto: true
+};
+function configuredThinkingLevel(pi) {
+  const settings = pi.pi?.settings;
+  const role = settings?.getModelRole?.("default");
+  if (typeof role !== "string") return void 0;
+  const colon = role.lastIndexOf(":");
+  if (colon < 0) return void 0;
+  const suffix = role.slice(colon + 1);
+  return EFFORT_SUFFIX[suffix] ? suffix : void 0;
+}
+function lastSessionThinkingLevel(ctx) {
+  const entries = ctx.sessionManager?.getEntries?.() ?? [];
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const entry = entries[i];
+    if (entry?.type !== "thinking_level_change") continue;
+    const configured = "configured" in entry ? entry.configured : void 0;
+    const level = typeof configured === "string" && configured.length > 0 ? configured : entry.thinkingLevel;
+    if (typeof level === "string" && (EFFORT_SUFFIX[level] || level === "inherit")) return level;
+  }
+  return void 0;
+}
+async function rebindStaleXaiModel(pi, ctx) {
+  const current = ctx.model;
+  if (!current || current.provider !== "xai-oauth") return;
+  if (Array.isArray(current.thinking?.efforts) && current.thinking.efforts.length > 0) return;
+  const corrected = ctx.modelRegistry.find(current.provider, current.id);
+  if (!corrected || !Array.isArray(corrected.thinking?.efforts) || corrected.thinking.efforts.length === 0) return;
+  const existing = pi.getThinkingLevel();
+  const intended = (typeof existing === "string" && existing.length > 0 ? existing : void 0) ?? lastSessionThinkingLevel(ctx) ?? configuredThinkingLevel(pi);
+  const ok = await pi.setModel(corrected);
+  if (!ok) return;
+  if (intended) pi.setThinkingLevel(intended);
+}
+
 // src/index.ts
 function index_default(pi) {
   pi.registerProvider("xai-oauth", {
@@ -147,6 +191,7 @@ function index_default(pi) {
     models: xaiOauthModels,
     oauth: xaiOauthConfig()
   });
+  pi.on("session_start", (_event, ctx) => rebindStaleXaiModel(pi, ctx));
 }
 export {
   XAI_OAUTH_BASE_URL,

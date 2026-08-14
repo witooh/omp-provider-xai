@@ -67,7 +67,10 @@ Or load it for a single run without installing:
 omp -e /path/to/omp-provider-xai/dist/index.js --model xai-oauth/grok-4.6 --thinking high
 ```
 
-After install, start a **new** omp session (or re-select the model) so the repaired catalog is loaded.
+After install, start a **new** omp session. The extension rebinds `grok-4.6` at
+`session_start` so the effort dial (from `modelRoles.default` suffix, or a
+restored session level) appears without re-selecting the model.
+
 
 ## Known limitation
 
